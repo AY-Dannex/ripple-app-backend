@@ -1,5 +1,5 @@
 import { Post } from "../models/post.model.js";
-import uploadToCloudinary from "../middleware/upload.middleware.js";
+import { uploadToCloudinary } from "../middleware/upload.middleware.js";
 
 const createPost = async (req, res) => {
     try {
