@@ -1,12 +1,19 @@
 import { Post } from "../models/post.model.js";
+import uploadToCloudinary from "../middleware/upload.middleware.js";
 
 const createPost = async (req, res) => {
     try {
-        const { image, description, visibility } = req.body
+        const { description, visibility } = req.body
+        let image = null
 
         if(!description && !visibility) return res.status(400).json({
             message: "Description and visibility are required"
         })
+
+        if(req.file){
+            const result = await uploadToCloudinary(req.file.buffer)
+            image = result.secure_url
+        }
 
         const post = await Post.create({
             user: req.user._id,
