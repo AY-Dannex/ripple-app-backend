@@ -3,6 +3,24 @@ import bcrypt from "bcrypt"
 
 const userSchema = new Schema(
     {
+        firstName: {
+            type: String,
+            required: true,
+            trim: true,
+            minLength: 1,
+            maxLength: 20,
+            match: [/^[a-zA-Z]+$/, "Name can only contain letters"]
+        },
+
+        lastName: {
+            type: String,
+            required: true,
+            trim: true,
+            minLength: 1,
+            maxLength: 20,
+            match: [/^[a-zA-Z]+$/, "Name can only contain letters"]
+        },
+        
         username: {
             type: String,
             required: true,

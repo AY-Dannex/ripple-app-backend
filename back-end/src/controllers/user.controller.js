@@ -4,9 +4,9 @@ import jwt from "jsonwebtoken"
 
 const registerUser = async (req, res) => {
     try {
-        const { username, email, password } = req.body
+        const { firstName, lastName, username, email, password } = req.body
 
-        if(!username || !email || !password) return res.status(400).json({
+        if(!firstName || !lastName || !username || !email || !password) return res.status(400).json({
             message: "All fields are required"
     })
 
@@ -17,6 +17,8 @@ const registerUser = async (req, res) => {
     })
 
     const user = await User.create({
+        firstName,
+        lastName,
         username,
         email: email.toLowerCase(),
         password,
@@ -26,7 +28,7 @@ const registerUser = async (req, res) => {
 
     res.status(201).json({
         message: "User created successfully",
-        user: { id: user._id, username: user.username, email: user.email, role: user.role }
+        user: { id: user._id, firstName: user.firstName, lastName: user.lastName, username: user.username, email: user.email, role: user.role }
     })
     } catch (error) {
         res.status(500).json({
@@ -81,6 +83,8 @@ const loginUsers = async (req, res) => {
             message: "User logged in successfully",
             user: {
                 id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
                 username: user.username,
                 email: user.email,
                 role: user.role
@@ -98,11 +102,15 @@ const getProfile = async (req, res) => {
     try {
         res.status(200).json({
             message: "Profile retreived successfully",
-            username: profile.username,
-            email: profile.email,
-            role: profile.role,
-            created: profile.createdAt,
-            updated: profile.updatedAt
+            profile: {
+                firstName,
+                lastName,
+                username: profile.username,
+                email: profile.email,
+                role: profile.role,
+                created: profile.createdAt,
+                updated: profile.updatedAt
+            }
         })
     } catch (error) {
         res.status(500).json({
