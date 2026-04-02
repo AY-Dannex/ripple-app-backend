@@ -103,7 +103,7 @@ const getProfile = async (req, res) => {
         res.status(200).json({
             message: "Profile retreived successfully",
             profile: {
-                firstName: profile.firstNameame,
+                firstName: profile.firstName,
                 lastName: profile.lastName,
                 username: profile.username,
                 email: profile.email,
