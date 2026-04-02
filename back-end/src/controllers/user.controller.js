@@ -123,6 +123,8 @@ const logoutUsers = async (req, res) => {
     try {
         res.cookie("token", "", {
             httpOnly: true,
+            samesite: "none",
+            secure: process.env.NODE_ENV,
             expires: new Date(0) //Expire immediately
         })
 
