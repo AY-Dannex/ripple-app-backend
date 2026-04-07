@@ -103,6 +103,7 @@ const getProfile = async (req, res) => {
         res.status(200).json({
             message: "Profile retreived successfully",
             profile: {
+                id: profile._id,
                 firstName: profile.firstName,
                 lastName: profile.lastName,
                 username: profile.username,
@@ -116,6 +117,14 @@ const getProfile = async (req, res) => {
         res.status(500).json({
             message: `Internal Server Error, ${error}`
         })
+    }
+}
+
+const updateProfile = async (req, res) => {
+    try {
+        
+    } catch (error) {
+        
     }
 }
 
