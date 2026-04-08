@@ -10,16 +10,21 @@ const registerUser = async (req, res) => {
             message: "All fields are required"
     })
 
-    const exists = await User.findOne({ email: email.toLowerCase() })
+    const existEmail = await User.findOne({ email: email.toLowerCase() })
+    const existUsername = await User.findOne({ username: username.toLowerCase() })
 
-    if(exists) return res.status(400).json({
+    if(existEmail) return res.status(400).json({
         message: "User with current email already exists"
+    })
+
+    if(existUsername) return res.status(400).json({
+        message: "Username already taken"
     })
 
     const user = await User.create({
         firstName,
         lastName,
-        username,
+        username: username.toLowerCase(),
         email: email.toLowerCase(),
         password,
         role: "user",
@@ -122,9 +127,70 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
     try {
+        const { firstName, lastName } = req.body
+        let { email, username } = req.body
+
+        const id = req.user._id
+
+        if (!id) return res.status(400).json({
+            message: "No ID found" 
+        })
+
+        if (!firstName && !lastName && !username && !email) return res.status(400).json({
+            message: "Minimum of 1 field must be updated"
+        })
         
+        const updateFields = {}
+
+        if (email){
+            email = email.toLowerCase()
+            // console.log("Checking email:", email)
+
+            const emailExists = await User.findOne({ email, _id: { $ne: id } })
+            // console.log("Email exists:", emailExists)
+
+            if(emailExists) return res.status(400).json({
+                message: "User with the email already exists"
+            })
+
+            updateFields.email = email
+        }
+
+        if(username){
+            username = username.toLowerCase()
+            const usernameExists = await User.findOne({ username, _id: { $ne: id } })
+
+            if(usernameExists) return res.status(400).json({
+                message: "Username already taken"
+            })
+
+            updateFields.username = username
+        }
+
+        if(firstName) updateFields.firstName = firstName
+        if(lastName) updateFields.lastName = lastName
+
+
+        const updatedUser = await User.findByIdAndUpdate(id, updateFields, { returnDocument: "after" })
+
+        if (!updatedUser) return res.status(404).json({
+            message: "User not found"
+        })
+
+        res.status(200).json({
+            message: "Profile updated successfully",
+            profile: {
+                firstName: updatedUser.firstName,
+                lastName: updatedUser.lastName,
+                username: updatedUser.username,
+                email: updatedUser.email,
+                role: updatedUser.role
+            }
+        })
     } catch (error) {
-        
+        res.status(500).json({
+            message: `Internal server error ${error.message}`
+        })
     }
 }
 
@@ -270,4 +336,4 @@ const deleteUser = async (req, res) => {
     }
 }
 
-export { registerUser, loginUsers, getProfile, logoutUsers, assignRole, suspendUser, deleteUser }
+export { registerUser, loginUsers, getProfile, updateProfile, logoutUsers, assignRole, suspendUser, deleteUser }
