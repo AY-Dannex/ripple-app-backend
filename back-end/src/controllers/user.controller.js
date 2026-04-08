@@ -142,7 +142,7 @@ const uploadProfilePic = async (req, res) => {
             })
         }
 
-        const updatedUser = await User.findByIdAndUpdate(id, {profilePic: imageUrl}, { returnDocument: "after" })
+        const updatedUser = await User.findByIdAndUpdate(id, {profilePic: imageUrl}, { new: true })
         
         if (!updatedUser) return res.status(404).json({
                 message: "User not found"
@@ -151,7 +151,15 @@ const uploadProfilePic = async (req, res) => {
 
         res.status(200).json({
             message: "Avatar updated successfully",
-            profilePic: updatedUser.profilePic
+            profilePic: {
+                firstName: updatedUser.firstName,
+                lastName: updatedUser.lastName,
+                username: updatedUser.username,
+                email: updatedUser.email,
+                role: updatedUser.role,
+                profilePic: updatedUser.profilePic,
+                created: updatedUser.createdAt
+            }
         })
 
     } catch (error) {
