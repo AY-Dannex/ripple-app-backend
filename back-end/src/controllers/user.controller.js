@@ -1,5 +1,6 @@
 import { User } from "../models/user.model.js"
 import { Post } from "../models/post.model.js"
+import { uploadToCloudinary } from "../middleware/upload.middleware.js"
 import jwt from "jsonwebtoken"
 
 const registerUser = async (req, res) => {
@@ -98,7 +99,7 @@ const loginUsers = async (req, res) => {
         })
     } catch (error) {
         res.status(500).json({
-            message: `Internal Server Error, ${error}`
+            message: `Internal Server Error, ${error.message}`
         })
     }
 }
@@ -123,6 +124,39 @@ const getProfile = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             message: `Internal Server Error, ${error}`
+        })
+    }
+}
+
+const uploadProfilePic = async (req, res) => {
+    try {
+        const id = req.user._id
+        let imageUrl = null
+
+        if(req.file){
+            const result = await uploadToCloudinary(req.file.buffer)
+            imageUrl = result.secure_url
+        }else{
+            return res.status(400).json({
+                message: "No file uploaded"
+            })
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(id, {profilePic: imageUrl}, { returnDocument: "after" })
+        
+        if (!updatedUser) return res.status(404).json({
+                message: "User not found"
+            })
+        
+
+        res.status(200).json({
+            message: "Avatar updated successfully",
+            profilePic: updatedUser.profilePic
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            message: `Internal Server Error, ${error.message}`
         })
     }
 }
@@ -340,4 +374,4 @@ const deleteUser = async (req, res) => {
     }
 }
 
-export { registerUser, loginUsers, getProfile, updateProfile, logoutUsers, assignRole, suspendUser, deleteUser }
+export { registerUser, loginUsers, getProfile, uploadProfilePic,updateProfile, logoutUsers, assignRole, suspendUser, deleteUser }

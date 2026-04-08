@@ -46,6 +46,11 @@ const userSchema = new Schema(
             maxLength: 100
         },
 
+        profilePic: {
+            type: String,
+            default: null
+        },
+
         password: {
             type: String,
             required: true,
