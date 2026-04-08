@@ -216,7 +216,7 @@ const updateProfile = async (req, res) => {
         if(bio) updateFields.bio = bio
 
 
-        const updatedUser = await User.findByIdAndUpdate(id, updateFields, { returnDocument: "after" })
+        const updatedUser = await User.findByIdAndUpdate(id, updateFields, { new: true })
 
         if (!updatedUser) return res.status(404).json({
             message: "User not found"
