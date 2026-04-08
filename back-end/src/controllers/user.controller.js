@@ -27,6 +27,7 @@ const registerUser = async (req, res) => {
         username: username.toLowerCase(),
         email: email.toLowerCase(),
         password,
+        bio: "",
         role: "user",
         loggedIn: false
     })
