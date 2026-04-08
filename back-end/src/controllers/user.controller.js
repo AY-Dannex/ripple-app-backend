@@ -114,6 +114,7 @@ const getProfile = async (req, res) => {
                 lastName: profile.lastName,
                 username: profile.username,
                 email: profile.email,
+                bio: profile.bio,
                 role: profile.role,
                 created: profile.createdAt,
                 updated: profile.updatedAt
@@ -128,7 +129,7 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
     try {
-        const { firstName, lastName } = req.body
+        const { firstName, lastName, bio } = req.body
         let { email, username } = req.body
 
         const id = req.user._id
@@ -137,7 +138,7 @@ const updateProfile = async (req, res) => {
             message: "No ID found" 
         })
 
-        if (!firstName && !lastName && !username && !email) return res.status(400).json({
+        if (!firstName && !lastName && !username && !email && !bio) return res.status(400).json({
             message: "Minimum of 1 field must be updated"
         })
         
@@ -170,6 +171,7 @@ const updateProfile = async (req, res) => {
 
         if(firstName) updateFields.firstName = firstName
         if(lastName) updateFields.lastName = lastName
+        if(bio) updateFields.bio = bio
 
 
         const updatedUser = await User.findByIdAndUpdate(id, updateFields, { returnDocument: "after" })
@@ -185,6 +187,7 @@ const updateProfile = async (req, res) => {
                 lastName: updatedUser.lastName,
                 username: updatedUser.username,
                 email: updatedUser.email,
+                bio: updatedUser.bio,
                 role: updatedUser.role
             }
         })
