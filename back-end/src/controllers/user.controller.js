@@ -151,7 +151,7 @@ const uploadProfilePic = async (req, res) => {
 
         res.status(200).json({
             message: "Avatar updated successfully",
-            profilePic: {
+            profile: {
                 firstName: updatedUser.firstName,
                 lastName: updatedUser.lastName,
                 username: updatedUser.username,
