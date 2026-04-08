@@ -117,6 +117,7 @@ const getProfile = async (req, res) => {
                 email: profile.email,
                 bio: profile.bio,
                 role: profile.role,
+                profilePic: profile.profilePic,
                 created: profile.createdAt,
                 updated: profile.updatedAt
             }
