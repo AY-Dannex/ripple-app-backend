@@ -9,6 +9,9 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser())
 
+console.log("FRONTEND_URL:", process.env.FRONTEND_URL)
+console.log("NODE_ENV:", process.env.NODE_ENV)
+
 app.use(cors({
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
     credentials: true
