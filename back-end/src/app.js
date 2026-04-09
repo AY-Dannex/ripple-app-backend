@@ -13,7 +13,9 @@ console.log("FRONTEND_URL:", process.env.FRONTEND_URL)
 console.log("NODE_ENV:", process.env.NODE_ENV)
 
 app.use(cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: function(origin, callback) {
+        callback(null, true)  // allow all origins temporarily
+    },
     credentials: true
 }))
 
