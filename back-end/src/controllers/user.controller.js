@@ -82,7 +82,7 @@ const loginUsers = async (req, res) => {
         res.cookie("token", token, {
             httpOnly: true,
             sameSite: "none",
-            secure: process.env.NODE_ENV,
+            secure: process.env.NODE_ENV === "production",
             maxAge: 24 * 60 * 60 * 1000
         })
 
@@ -246,7 +246,7 @@ const logoutUsers = async (req, res) => {
         res.cookie("token", "", {
             httpOnly: true,
             samesite: "none",
-            secure: process.env.NODE_ENV,
+            secure: process.env.NODE_ENV === "production",
             expires: new Date(0) //Expire immediately
         })
 
