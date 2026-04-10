@@ -105,8 +105,8 @@ const loginUsers = async (req, res) => {
 }
 
 const getProfile = async (req, res) => {
-    const profile = req.user
     try {
+        const profile = req.user
         res.status(200).json({
             message: "Profile retreived successfully",
             profile: {
