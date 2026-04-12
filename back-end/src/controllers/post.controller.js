@@ -17,13 +17,15 @@ const createPost = async (req, res) => {
 
         const post = await Post.create({
             user: req.user._id,
+            profilePic: req.user.profilePic,
             image,
             description,
             visibility
         })
 
         res.status(201).json({
-            message: "Post Created Successfully", post
+            message: "Post Created Successfully",
+            post
         })
     } catch (error) {
         res.status(500).json({
@@ -116,7 +118,7 @@ const deletePost = async (req, res) => {
 const getAllPost = async (req, res) => {
     try {
         if (req.user.role === "admin" || req.user.role === "moderator"){
-            const allPost = await Post.find().populate("user", "username email role")
+            const allPost = await Post.find().populate("user", "username firstName lastName email role profilePic")
     
             if (!allPost) return res.status(404).json({
                 message: "Post not Found"
@@ -128,7 +130,7 @@ const getAllPost = async (req, res) => {
         }
 
         if (req.user.role === "user"){
-            const allPost = await Post.find({$or: [{ visibility: "public" }, {user: req.user._id}]}).populate("user", "username email role")
+            const allPost = await Post.find({$or: [{ visibility: "public" }, {user: req.user._id}]}).populate("user", "username firstName lastName email role profilePic")
 
             if (!allPost) return res.status(404).json({
                 message: "Post not Found"
@@ -147,7 +149,7 @@ const getAllPost = async (req, res) => {
 
 const getUserPost = async (req, res) => {
     try {
-        const userPost = await Post.find({user: req.user._id}).populate("user", "username email role")
+        const userPost = await Post.find({user: req.user._id}).populate("user", "username email role, profilePic")
 
         if (userPost.length === 0) return res.status(404).json({
             message: "Post not found... No post has been created"

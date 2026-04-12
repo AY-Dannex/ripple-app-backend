@@ -1,6 +1,7 @@
 import { User } from "../models/user.model.js"
 import { Post } from "../models/post.model.js"
 import { uploadToCloudinary } from "../middleware/upload.middleware.js"
+import cloudinary from "../config/cloudinary.js"
 import jwt from "jsonwebtoken"
 
 const registerUser = async (req, res) => {
@@ -94,7 +95,10 @@ const loginUsers = async (req, res) => {
                 lastName: user.lastName,
                 username: user.username,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                bio: user.bio,
+                created: user.createdAt,
+                profilePic: user.profilePic
             }
         })
     } catch (error) {
@@ -134,6 +138,15 @@ const uploadProfilePic = async (req, res) => {
         const id = req.user._id
         let imageUrl = null
 
+        if (req.user.profilePic) {
+            const publicId = req.user.profilePic
+                .split("/")
+                .pop()
+                .split(".")[0]
+            
+            await cloudinary.uploader.destroy(`ripple/${publicId}`)
+        }
+
         if(req.file){
             const result = await uploadToCloudinary(req.file.buffer)
             imageUrl = result.secure_url
@@ -167,6 +180,14 @@ const uploadProfilePic = async (req, res) => {
         res.status(500).json({
             message: `Internal Server Error, ${error.message}`
         })
+    }
+}
+
+const deleteProfilePic = async (req, res) => {
+    try {
+        
+    } catch (error) {
+        
     }
 }
 
