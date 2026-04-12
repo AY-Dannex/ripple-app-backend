@@ -149,7 +149,7 @@ const getAllPost = async (req, res) => {
 
 const getUserPost = async (req, res) => {
     try {
-        const userPost = await Post.find({user: req.user._id}).populate("user", "username email role, profilePic")
+        const userPost = await Post.find({user: req.user._id}).populate("user", "username email role profilePic firstName lastName")
 
         if (userPost.length === 0) return res.status(404).json({
             message: "Post not found... No post has been created"
