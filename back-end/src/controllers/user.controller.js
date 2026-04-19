@@ -281,6 +281,47 @@ const logoutUsers = async (req, res) => {
     }
 }
 
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find().select("firstName lastName username email role profilePic")
+        res.status(200).json({
+            message: "All users rendered successfully",
+            users
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: `Internal Server Error ${error.message}`
+        })
+        
+    }
+}
+
+const getUser = async (req, res) => {
+    try {
+        const { email } = req.query
+
+        if (!email) return res.status(400).json({
+            message: "No email provided"
+        })
+
+        const user = await User.findOne({email: email.toLowerCase()})
+
+        if(!user) return res.status(404).json({
+            message: "User with this email dosen't exist"
+        })
+
+        res.status(200).json({
+            message: "User Found",
+            user
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            message: `Internal Server Error ${error.message}`
+        })
+    }
+}
+
 const assignRole = async (req, res) => {
     try {
         const { email, newRole } = req.body
@@ -404,4 +445,4 @@ const deleteUser = async (req, res) => {
     }
 }
 
-export { registerUser, loginUsers, getProfile, uploadProfilePic,updateProfile, logoutUsers, assignRole, suspendUser, deleteUser }
+export { registerUser, loginUsers, getProfile, uploadProfilePic,updateProfile, logoutUsers, assignRole, suspendUser, deleteUser, getUser, getAllUsers }

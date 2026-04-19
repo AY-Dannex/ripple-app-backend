@@ -84,18 +84,35 @@ const deletePost = async (req, res) => {
         const reqUser = req.user
         const postOwner = post.user
 
+        //Admin can delete any post
         if (reqUser.role === "admin"){
             await Post.findByIdAndDelete(req.params.id)
-            return res.json(200).json({
+            return res.status(200).json({
                 message: "Post deleted successfully"
             })
         } 
 
-        if (reqUser.role === "moderator" && postOwner.role !== "user") return res.status(403).json({
-            message: "Moderators can only delete regular user posts... Access Denied!!!"
-        })
+        //Moderator only deletes user post and their post
+        if (reqUser.role === "moderator"){
+            if(postOwner.role === "moderator" && reqUser._id.toString() === postOwner._id.toString() ){
+                await Post.findByIdAndDelete(req.params.id)
+                return res.status(200).json({
+                    message: "Post deleted successfully"
+                })
+            }else if (reqUser.role === "moderator" && postOwner.role === "user"){
+                await Post.findByIdAndDelete(req.params.id)
+                return res.status(200).json({
+                    message: "Post deleted successfully"
+                })
+            }else{
+                return res.status(403).json({
+                    message: "You can't delete admin Post"
+                })
+            }
+        }
 
-        if (reqUser.role !== "admin" && postOwner.role !== "moderator"){
+        //Regular Users can only delete their own post
+        if (reqUser.role === "user"){
             if(postOwner._id.toString() !== reqUser._id.toString()){
                 return res.status(403).json({
                     message: "You can only delete your own post"
