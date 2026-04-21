@@ -304,7 +304,7 @@ const getUser = async (req, res) => {
             message: "No email provided"
         })
 
-        const user = await User.findOne({email: email.toLowerCase()})
+        const user = await User.findOne({email: email.toLowerCase()}).select("firstName lastName username role email profilePic")
 
         if(!user) return res.status(404).json({
             message: "User with this email dosen't exist"
