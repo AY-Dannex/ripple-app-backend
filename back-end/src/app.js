@@ -2,6 +2,7 @@ import cors from "cors"
 import express from "express"
 import userRouter from "./routes/users.route.js"
 import postRouter from "./routes/post.route.js"
+import activityRouter from "./routes/activity.route.js"
 import cookieParser from "cookie-parser"
 
 
@@ -19,6 +20,7 @@ app.use(cors({
 
 app.use("/api/user/", userRouter)
 app.use("/api/post/", postRouter)
+app.use("/api/activity-logs/", activityRouter)
 
 export default app
 

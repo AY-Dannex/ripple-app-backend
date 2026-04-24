@@ -1,5 +1,6 @@
 import { User } from "../models/user.model.js"
 import { Post } from "../models/post.model.js"
+import { Activity } from "../models/user.activity.model.js"
 import { uploadToCloudinary } from "../middleware/upload.middleware.js"
 import cloudinary from "../config/cloudinary.js"
 import jwt from "jsonwebtoken"
@@ -283,6 +284,10 @@ const logoutUsers = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
     try {
+        if(req.user.role !== "admin") return res.status(403).json({
+            message: "Access denied... You are not an admin"
+        })
+
         const users = await User.find().select("firstName lastName username email role profilePic")
         res.status(200).json({
             message: "All users rendered successfully",
@@ -298,6 +303,10 @@ const getAllUsers = async (req, res) => {
 
 const getUser = async (req, res) => {
     try {
+        if(req.user.role !== "admin") return res.status(403).json({
+            message: "Access denied... You are not an admin"
+        })
+
         const { email } = req.query
 
         if (!email) return res.status(400).json({
@@ -324,6 +333,10 @@ const getUser = async (req, res) => {
 
 const assignRole = async (req, res) => {
     try {
+        if(req.user.role !== "admin") return res.status(403).json({
+            message: "You are not authorized to assign roles to users"
+        })
+
         const { email, newRole } = req.body
 
         if (!email || !newRole) return res.status(400).json({
@@ -350,6 +363,15 @@ const assignRole = async (req, res) => {
             message: "admin cannot assign roles for other admins"
         })
 
+        // console.log(user._id)
+
+        await Activity.create({
+            action: "role changed",
+            targetUser: user._id,
+            performedBy: req.user._id,
+            details: `Role changed from ${user.role} to ${newRole}`
+        })
+
         await User.findByIdAndUpdate(user._id, {role: newRole})
 
         res.status(200).json({
@@ -358,13 +380,17 @@ const assignRole = async (req, res) => {
         })
     } catch (error) {
         res.status(500).json({
-            message: "Internal Server Error", error
+            message: `Internal Server Error, ${error.message}`
         })
     }
 }
 
 const suspendUser = async (req, res) => {
     try {
+        if(req.user.role !== "admin") return res.status(403).json({
+            message: "You are not authorized to suspend users"
+        })
+
         const { email, suspendedUntil } = req.body
     
         if (!email || ! suspendedUntil) return res.status(400).json({
@@ -389,6 +415,13 @@ const suspendUser = async (req, res) => {
             message: "Admins can't suspend other admins"
         })
 
+        await Activity.create({
+            action: "suspended",
+            targetUser: user._id,
+            performedBy: req.user._id,
+            details: `User with this email (${user.email}) has been suspended till ${suspendedUntil}`
+        })
+
         await User.findByIdAndUpdate(user._id, {suspendedUntil})
 
         res.status(200).json({
@@ -396,48 +429,60 @@ const suspendUser = async (req, res) => {
         })
     } catch (error) {
          res.status(500).json({
-            message: "Internal Server Error", error
+            message: `Internal Server Error, ${error.message}`
         })
     }
 }
 
 const deleteUser = async (req, res) => {
     try {  
-        if (req.user.role === "admin"){
-            const { email } = req.body
-
-            if (!email) return res.status(400).json({
-                message: "Email field required"
-            })
-
-            const user = await User.findOne({ email }) 
-
-            if (!user) return res.status(404).json({
-                message: "User not found"
-            })
-
-            if (req.user._id.toString() === user._id.toString()) return res.status(403).json({
-                message: "Admin can't delete other admins account"
-            })
-
-            await Post.deleteMany({ user: user._id })
-
-            await User.findByIdAndDelete(user._id)
-
-            res.status(200).json({
-                message: "User deleted successfully"
-            })
-        }else{
-            await Post.deleteMany({ user: req.user._id })
-
-            await User.findByIdAndDelete(req.user._id)
-
-            res.clearCookie("token")
-
-            res.status(200).json({
-                message: "User deleted successfully"
+        if (req.user.role !== "admin"){
+            res.status(403).json({
+                message: "You are not authorized to delete users"
             })
         }
+
+        const { email } = req.query
+
+        if (!email) return res.status(400).json({
+            message: "Email field required"
+        })
+
+        const user = await User.findOne({ email }) 
+
+        if (!user) return res.status(404).json({
+            message: "User not found"
+        })
+
+        if (req.user.role === user.role) return res.status(403).json({
+            message: "Admin can't delete other admins account"
+        })
+
+        await Activity.create({
+            action: "deleted",
+            targetUser: user._id,
+            performedBy: req.user._id,
+            details: `User with this email (${user.email}) has been deleted`
+        })
+
+        await Post.deleteMany({ user: user._id })
+
+        await User.findByIdAndDelete(user._id)
+
+        res.status(200).json({
+            message: "User deleted successfully"
+        })
+        // else{
+        //     await Post.deleteMany({ user: req.user._id })
+
+        //     await User.findByIdAndDelete(req.user._id)
+
+        //     res.clearCookie("token")
+
+        //     res.status(200).json({
+        //         message: "User deleted successfully"
+        //     })
+        // }
     } catch (error) {
         res.status(500).json({
             message: `Internal Server Error, ${error.message}`
