@@ -27,13 +27,13 @@ const deleteEachActivityLog = async (req, res) => {
             message: "Only Admins can access this route"
         })
 
-        const { activityId } = req.query
+        const { ID } = req.query
 
-        if(!activityId) return res.status(400).json({
+        if(!ID) return res.status(400).json({
             message: "Activity Log ID is required"
         })
 
-        const deleted = await Activity.findByIdAndDelete(activityId)
+        const deleted = await Activity.findByIdAndDelete(ID)
 
         if(!deleted) return res.status(404).json({
             message: "Activity Log not found"

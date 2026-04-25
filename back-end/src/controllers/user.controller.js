@@ -467,22 +467,13 @@ const deleteUser = async (req, res) => {
 
         await Post.deleteMany({ user: user._id })
 
+        await Activity.deleteMany({ targetUser: user._id })
+
         await User.findByIdAndDelete(user._id)
 
         res.status(200).json({
             message: "User deleted successfully"
         })
-        // else{
-        //     await Post.deleteMany({ user: req.user._id })
-
-        //     await User.findByIdAndDelete(req.user._id)
-
-        //     res.clearCookie("token")
-
-        //     res.status(200).json({
-        //         message: "User deleted successfully"
-        //     })
-        // }
     } catch (error) {
         res.status(500).json({
             message: `Internal Server Error, ${error.message}`
