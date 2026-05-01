@@ -135,7 +135,7 @@ const deletePost = async (req, res) => {
 const getAllPost = async (req, res) => {
     try {
         if (req.user.role === "admin" || req.user.role === "moderator"){
-            const allPost = await Post.find().populate("user", "username firstName lastName email role profilePic")
+            const allPost = await Post.find().populate("user", "username _id firstName lastName email role profilePic")
     
             if (!allPost) return res.status(404).json({
                 message: "Post not Found"

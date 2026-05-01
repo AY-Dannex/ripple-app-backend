@@ -263,6 +263,35 @@ const updateProfile = async (req, res) => {
     }
 }
 
+const getOtherUserProfile = async (req, res) => {
+    try {
+        // console.log("Query param: ", req.query)
+        const { ID } = req.query
+
+        if(!ID) return res.status(400).json({
+            message: "User ID is required"
+        })
+
+        // console.log("Looking for user with ID:", ID)
+        const user = await User.findById(ID).select("firstName lastName username role email profilePic bio")
+        // console.log(user)
+
+        if(!user) return res.status(404).json({
+            message: "User not found"
+        })
+
+        res.status(200).json({
+            message: "User profile retrieved",
+            user
+        })
+    } catch (error) {
+        // console.log("Error:", error)  
+        res.status(500).json({
+            message: `Internal server error ${error.message}`
+        })
+    }
+}
+
 const logoutUsers = async (req, res) => {
     try {
         res.cookie("token", "", {
@@ -313,7 +342,7 @@ const getUser = async (req, res) => {
             message: "No email provided"
         })
 
-        const user = await User.findOne({email: email.toLowerCase()}).select("firstName lastName username role email profilePic")
+        const user = await User.find({email: { $regex: `^${email}`, $options: "i" }}).select("firstName lastName username role email profilePic")
 
         if(!user) return res.status(404).json({
             message: "User with this email dosen't exist"
@@ -458,12 +487,12 @@ const deleteUser = async (req, res) => {
             message: "Admin can't delete other admins account"
         })
 
-        await Activity.create({
-            action: "deleted",
-            targetUser: user._id,
-            performedBy: req.user._id,
-            details: `User with this email (${user.email}) has been deleted`
-        })
+        // await Activity.create({
+        //     action: "deleted",
+        //     targetUser: user._id,
+        //     performedBy: req.user._id,
+        //     details: `User with this email (${user.email}) has been deleted`
+        // })
 
         await Post.deleteMany({ user: user._id })
 
@@ -481,4 +510,4 @@ const deleteUser = async (req, res) => {
     }
 }
 
-export { registerUser, loginUsers, getProfile, uploadProfilePic,updateProfile, logoutUsers, assignRole, suspendUser, deleteUser, getUser, getAllUsers }
+export { registerUser, loginUsers, getProfile, uploadProfilePic,updateProfile, getOtherUserProfile, logoutUsers, assignRole, suspendUser, deleteUser, getUser, getAllUsers }
