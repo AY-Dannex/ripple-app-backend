@@ -317,7 +317,7 @@ const getAllUsers = async (req, res) => {
             message: "Access denied... You are not an admin"
         })
 
-        const users = await User.find().select("firstName lastName username email role profilePic")
+        const users = await User.find().select("firstName lastName username email role profilePic _id")
         res.status(200).json({
             message: "All users rendered successfully",
             users
