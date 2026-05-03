@@ -16,10 +16,29 @@ const sendOTPEmail = async (email, otp) => {
     })
 
     await transporter.sendMail({
-        from: process.env.EMAIL_USER,
+        from: `Ripple App <${process.env.EMAIL_USER}>`,
         to: email,
         subject: "Your OTP for Registration",
-        html: `<h2>Welcome!</h2><p>Your OTP: <strong>${otp}</strong></p><p>Expires in 5 minutes</p>`
+        html: `
+            <div style="max-width: 400px; padding: 20px; border-radius: 5px; background-color: rgb(46, 46, 46);">
+                <div style="padding: 10px 20px 20px 20px; border-radius: 5px; background-color: black; color: white;">
+                    <h2 style="color: #8200DB;">Email OTP Verification</h2>
+                    <p style="text-align: justify;">
+                        Below is your one time passcode that you 
+                        need to use to complete your authentication.
+                        The verification code would be valid for 5 minutes.
+                        Please do not share this code with anyone.
+                    </p>
+                    <div style="width: 100%; border-radius: 5px; background-color: rgb(46, 46, 46);">
+                        <p style="font-size: 20px; padding: 8px 0; font-weight: bold; text-align: center;">${otp}</p>
+                    </div>
+                    <p>
+                        If you are having any issues with your account, 
+                        please don't hesitate to contact us
+                    </p>
+                </div>
+            </div>
+        `
     })
 }
 
