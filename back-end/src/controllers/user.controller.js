@@ -7,9 +7,9 @@ import jwt from "jsonwebtoken"
 
 const registerUser = async (req, res) => {
     try {
-        const { firstName, lastName, username, email, password } = req.body
+        const { firstName, lastName, username, email, password, otp } = req.body
 
-        if(!firstName || !lastName || !username || !email || !password) return res.status(400).json({
+        if(!firstName || !lastName || !username || !email || !password || !otp) return res.status(400).json({
             message: "All fields are required"
     })
 
@@ -23,6 +23,8 @@ const registerUser = async (req, res) => {
     if(existUsername) return res.status(400).json({
         message: "Username already taken"
     })
+
+    
 
     const user = await User.create({
         firstName,
@@ -57,7 +59,7 @@ const loginUsers = async (req, res) => {
         const user = await User.findOne({ email: email.toLowerCase() })
 
         if(!user) return res.status(404).json({
-            message: "User not found"
+            message: "User with this credentials does not exist"
         })
 
         const passwordMatch = await user.comparePassword(password)
@@ -186,9 +188,46 @@ const uploadProfilePic = async (req, res) => {
 
 const deleteProfilePic = async (req, res) => {
     try {
-        
+        const userID = req.user._id
+        const user = await User.findById(userID)
+
+        if(!user) return res.status(404).json({
+            message: "User not found"
+        })
+
+        if (user.profilePic) {
+            const publicId = user.profilePic
+                .split("/")
+                .pop()
+                .split(".")[0]
+            
+            await cloudinary.uploader.destroy(`ripple/${publicId}`)
+        }else{
+            res.status(200).json({
+            message: "No Avatar Uploaded"
+        })
+        }
+
+        user.profilePic = null
+        await user.save()
+
+        res.status(200).json({
+            message: "Avatar Deleted Successfully",
+            profile: {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+                profilePic: user.profilePic,
+                created: user.createdAt,
+                bio: user.bio
+            }
+        })
     } catch (error) {
-        
+        res.status(500).json({
+            message: `Internal Server Error, ${error.message}`
+        })
     }
 }
 
@@ -510,4 +549,4 @@ const deleteUser = async (req, res) => {
     }
 }
 
-export { registerUser, loginUsers, getProfile, uploadProfilePic,updateProfile, getOtherUserProfile, logoutUsers, assignRole, suspendUser, deleteUser, getUser, getAllUsers }
+export { registerUser, loginUsers, getProfile, uploadProfilePic, deleteProfilePic, updateProfile, getOtherUserProfile, logoutUsers, assignRole, suspendUser, deleteUser, getUser, getAllUsers }

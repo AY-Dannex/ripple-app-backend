@@ -43,7 +43,7 @@ const userSchema = new Schema(
             type: String,
             required: false,
             trim: true,
-            maxLength: 100
+            maxLength: 500
         },
 
         profilePic: {
